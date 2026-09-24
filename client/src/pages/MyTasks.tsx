@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import BackToTop from "../components/BackToTop";
+import CustomSelect from "../components/CustomSelect";
 import { TaskContext } from "../context/TaskContext";
 import type { Category } from "../types";
 import editIcon from "../assets/edit-icon.svg";
@@ -12,6 +13,19 @@ const categoryColors: Record<Category, string> = {
   Personal: "#73C3A6",
   Work: "#5B8DEF",
 };
+
+const categoryOptions = [
+  { value: "All", label: "All Categories" },
+  { value: "Work", label: "Work" },
+  { value: "Personal", label: "Personal" },
+  { value: "Urgent", label: "Urgent" },
+];
+
+const statusOptions = [
+  { value: "All", label: "All Status" },
+  { value: "Completed", label: "Completed" },
+  { value: "Not Completed", label: "Not Completed" },
+];
 
 const MyTasks = () => {
   const navigate = useNavigate();
@@ -51,31 +65,24 @@ const MyTasks = () => {
           </span>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4 sm:mt-6">
-          <select
-            className="w-full sm:w-auto font-['Signika_Negative'] font-medium text-[14px] sm:text-[16px] text-[#974FD0] border border-[#974FD0] rounded-[8px] px-4 py-2 cursor-pointer focus:outline-none"
-            value={categoryFilter}
-            onChange={(e) =>
-              setCategoryFilter(e.target.value as Category | "All")
-            }
-          >
-            <option value="All">All Categories</option>
-            <option value="Work">Work</option>
-            <option value="Personal">Personal</option>
-            <option value="Urgent">Urgent</option>
-          </select>
-          <select
-            className="w-full sm:w-auto font-['Signika_Negative'] font-medium text-[14px] sm:text-[16px] text-[#974FD0] border border-[#974FD0] rounded-[8px] px-4 py-2 cursor-pointer focus:outline-none"
-            value={statusFilter}
-            onChange={(e) =>
-              setStatusFilter(
-                e.target.value as "All" | "Completed" | "Not Completed",
-              )
-            }
-          >
-            <option value="All">All Status</option>
-            <option value="Completed">Completed</option>
-            <option value="Not Completed">Not Completed</option>
-          </select>
+          <div className="w-full sm:w-[180px]">
+            <CustomSelect
+              options={categoryOptions}
+              value={categoryFilter}
+              onChange={(v) => setCategoryFilter(v as Category | "All")}
+              buttonClassName="w-full flex items-center justify-between font-['Signika_Negative'] font-medium text-[14px] sm:text-[16px] text-[#974FD0] border border-[#974FD0] rounded-[8px] px-4 py-2 cursor-pointer focus:outline-none"
+            />
+          </div>
+          <div className="w-full sm:w-[180px]">
+            <CustomSelect
+              options={statusOptions}
+              value={statusFilter}
+              onChange={(v) =>
+                setStatusFilter(v as "All" | "Completed" | "Not Completed")
+              }
+              buttonClassName="w-full flex items-center justify-between font-['Signika_Negative'] font-medium text-[14px] sm:text-[16px] text-[#974FD0] border border-[#974FD0] rounded-[8px] px-4 py-2 cursor-pointer focus:outline-none"
+            />
+          </div>
         </div>
         <div className="flex flex-col gap-8 sm:gap-12 md:gap-[79px] mt-8 md:mt-10 mb-16">
           {visibleTasks.length === 0 ? (

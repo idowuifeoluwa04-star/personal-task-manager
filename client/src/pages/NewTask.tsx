@@ -1,9 +1,16 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import CustomSelect from "../components/CustomSelect";
 import backArrow from "../assets/back-arrow.svg";
 import { TaskContext } from "../context/TaskContext";
 import type { Category } from "../types";
+
+const categoryOptions = [
+  { value: "Work", label: "Work" },
+  { value: "Personal", label: "Personal" },
+  { value: "Urgent", label: "Urgent" },
+];
 
 const NewTask = () => {
   const navigate = useNavigate();
@@ -90,15 +97,13 @@ const NewTask = () => {
             <label className="absolute top-0 left-4 sm:left-[30px] md:left-[45px] -translate-y-1/2 bg-white px-2 font-['Signika_Negative'] font-normal text-[18px] sm:text-[24px] md:text-[30px] text-[#9C9C9C]">
               Category
             </label>
-            <select
+            <CustomSelect
+              options={categoryOptions}
               value={category}
-              onChange={(e) => setCategory(e.target.value as Category)}
-              className="w-full font-['Signika_Negative'] font-normal text-[16px] sm:text-[19px] md:text-[22px] text-[#292929] focus:outline-none cursor-pointer"
-            >
-              <option value="Work">Work</option>
-              <option value="Personal">Personal</option>
-              <option value="Urgent">Urgent</option>
-            </select>
+              onChange={(v) => setCategory(v as Category)}
+              buttonClassName="w-full flex items-center justify-between font-['Signika_Negative'] font-normal text-[16px] sm:text-[19px] md:text-[22px] text-[#292929] focus:outline-none cursor-pointer"
+              optionClassName="px-4 py-2 cursor-pointer font-['Signika_Negative'] text-[16px] sm:text-[19px] md:text-[22px]"
+            />
           </div>
           {error && (
             <p className="font-['Signika_Negative'] text-[15px] md:text-[18px] text-[#F38383]">
