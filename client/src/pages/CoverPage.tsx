@@ -13,7 +13,7 @@ const CoverPage = () => {
           <div className="order-1 flex flex-col gap-4 sm:gap-5 md:gap-[21px] text-center md:text-left">
             <h1 className="font-['Signika_Negative'] font-medium text-[28px] sm:text-[36px] md:text-[50px] leading-[110%] md:leading-[100%] text-[#292929]">
               Manage your Tasks on{" "}
-              <span className="text-[#974FD0]">TaskDuty</span>
+              <span className="block text-[#974FD0]">TaskDuty</span>
             </h1>
             <p className="font-['Signika_Negative'] font-normal text-[16px] sm:text-[18px] md:text-[24px] leading-[140%] md:leading-[100%] text-[#737171]">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Non
