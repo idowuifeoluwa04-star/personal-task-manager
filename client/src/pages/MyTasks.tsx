@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import BackToTop from "../components/BackToTop";
 import CustomSelect from "../components/CustomSelect";
+import ConfirmModal from "../components/ConfirmModal";
 import { TaskContext } from "../context/TaskContext";
 import type { Category } from "../types";
 import editIcon from "../assets/edit-icon.svg";
@@ -35,6 +36,7 @@ const MyTasks = () => {
     "All" | "Completed" | "Not Completed"
   >("All");
   const [visibleTasks, setVisibleTasks] = useState(tasks);
+  const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     let filtered = tasks;
@@ -48,6 +50,8 @@ const MyTasks = () => {
     }
     setVisibleTasks(filtered);
   }, [tasks, categoryFilter, statusFilter]);
+
+  const taskPendingDelete = tasks.find((task) => task.id === taskToDelete);
 
   return (
     <div>
@@ -121,7 +125,7 @@ const MyTasks = () => {
                       Edit
                     </button>
                     <button
-                      onClick={() => deleteTask(task.id)}
+                      onClick={() => setTaskToDelete(task.id)}
                       className="flex items-center gap-1 sm:gap-2 md:gap-[10px] rounded-[8px] border border-[#974FD0] hover:bg-[#974FD0] hover:text-white cursor-pointer text-[#974FD0] font-medium text-[14px] sm:text-[18px] md:text-[24px] px-[14px] sm:px-[18px] md:px-[25px] py-[6px] sm:py-[8px] md:py-[10px]"
                     >
                       <img
@@ -148,6 +152,15 @@ const MyTasks = () => {
         </div>
       </div>
       <BackToTop />
+      <ConfirmModal
+        isOpen={taskToDelete !== null}
+        taskTitle={taskPendingDelete?.title}
+        onCancel={() => setTaskToDelete(null)}
+        onConfirm={() => {
+          if (taskToDelete) deleteTask(taskToDelete);
+          setTaskToDelete(null);
+        }}
+      />
     </div>
   );
 };
