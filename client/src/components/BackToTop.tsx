@@ -5,9 +5,10 @@ const BackToTop = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setVisible(window.scrollY > 200);
+      setVisible(window.scrollY > 400);
     };
 
+    handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -20,8 +21,10 @@ const BackToTop = () => {
 
   return (
     <button
+      type="button"
+      aria-label="Back to top"
       onClick={scrollToTop}
-      className="fixed bottom-8 right-8 w-[50px] h-[50px] rounded-full bg-[#974FD0] hover:bg-[#7e3fb0] text-white text-[24px] flex items-center justify-center shadow-lg cursor-pointer"
+      className="fixed bottom-6 right-6 z-40 w-11 h-11 rounded-full bg-[#974FD0] hover:bg-[#7e3fb0] text-white text-[20px] flex items-center justify-center shadow-lg transition-colors cursor-pointer"
     >
       ↑
     </button>

@@ -35,6 +35,7 @@ const MyTasks = () => {
   const [statusFilter, setStatusFilter] = useState<
     "All" | "Completed" | "Not Completed"
   >("All");
+  const [searchTerm, setSearchTerm] = useState("");
   const [visibleTasks, setVisibleTasks] = useState(tasks);
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
@@ -48,8 +49,16 @@ const MyTasks = () => {
     } else if (statusFilter === "Not Completed") {
       filtered = filtered.filter((task) => !task.completed);
     }
+    if (searchTerm.trim() !== "") {
+      const term = searchTerm.trim().toLowerCase();
+      filtered = filtered.filter(
+        (task) =>
+          task.title.toLowerCase().includes(term) ||
+          task.description.toLowerCase().includes(term),
+      );
+    }
     setVisibleTasks(filtered);
-  }, [tasks, categoryFilter, statusFilter]);
+  }, [tasks, categoryFilter, statusFilter, searchTerm]);
 
   const taskPendingDelete = tasks.find((task) => task.id === taskToDelete);
 
@@ -69,6 +78,15 @@ const MyTasks = () => {
           </span>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4 sm:mt-6">
+          <div className="w-full sm:flex-1">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search tasks by title or description..."
+              className="w-full font-['Signika_Negative'] font-medium text-[14px] sm:text-[16px] text-[#292929] border border-[#974FD0] rounded-[8px] px-4 py-2 focus:outline-none placeholder:text-[#B8B6B6]"
+            />
+          </div>
           <div className="w-full sm:w-[180px]">
             <CustomSelect
               options={categoryOptions}
