@@ -31,14 +31,14 @@ export const createTask = async (
   }
 };
 
-// GET ALL TASKS (for the logged-in user only — supports optional filtering)
+// GET ALL TASKS (for the logged-in user only — supports optional filtering and search)
 
 export const getTasks = async (
   req: AuthRequest,
   res: Response,
 ): Promise<void> => {
   try {
-    const { completed, category } = req.query;
+    const { completed, category, search } = req.query;
 
     const filter: Record<string, unknown> = { owner: req.user!._id };
 
@@ -49,6 +49,19 @@ export const getTasks = async (
 
     if (category !== undefined) {
       filter.category = category;
+    }
+
+    // Optional search — matches title or description, case-insensitive
+    if (
+      search !== undefined &&
+      typeof search === "string" &&
+      search.trim() !== ""
+    ) {
+      const term = search.trim();
+      filter.$or = [
+        { title: { $regex: term, $options: "i" } },
+        { description: { $regex: term, $options: "i" } },
+      ];
     }
 
     const tasks = await Task.find(filter).sort({ createdAt: -1 });
