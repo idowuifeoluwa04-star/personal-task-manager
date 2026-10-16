@@ -21,7 +21,7 @@ const NewTask = () => {
   const [category, setCategory] = useState<Category>("Work");
   const [error, setError] = useState("");
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!title || !description || !dueDate) {
       setError("All fields are required.");
       return;
@@ -32,8 +32,12 @@ const NewTask = () => {
       return;
     }
     setError("");
-    createTask({ title, description, dueDate, category });
-    navigate("/my-tasks");
+    try {
+      await createTask({ title, description, dueDate, category });
+      navigate("/my-tasks");
+    } catch {
+      /* error toast already shown */
+    }
   };
 
   const scrollToTop = () => {

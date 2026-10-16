@@ -1,6 +1,8 @@
-import { createContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useState, useEffect, useContext, type ReactNode } from "react";
 import type { Task, TaskContextValue, NewTaskInput } from "../types";
 import { toast } from "react-toastify";
+import { apiRequest, ApiError } from "../api/client";
+import { AuthContext } from "./AuthContext";
 
 export const TaskContext = createContext({} as TaskContextValue);
 
@@ -8,58 +10,109 @@ interface TaskProviderProps {
   children: ReactNode;
 }
 
-const STORAGE_KEY = "taskduty-tasks";
+interface RawTask {
+  _id: string;
+  title: string;
+  description: string;
+  dueDate: string;
+  category: Task["category"];
+  completed: boolean;
+}
 
-const loadTasks = (): Task[] => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-};
+const toTask = (raw: RawTask): Task => ({
+  id: raw._id,
+  title: raw.title,
+  description: raw.description,
+  dueDate: raw.dueDate ? raw.dueDate.split("T")[0] : "",
+  category: raw.category,
+  completed: raw.completed,
+});
 
 const TaskProvider = ({ children }: TaskProviderProps) => {
-  const [tasks, setTasks] = useState<Task[]>(loadTasks);
+  const { user } = useContext(AuthContext);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchTasks = async (): Promise<void> => {
+    setLoading(true);
+    try {
+      const data = await apiRequest<{ tasks: RawTask[] }>("/api/tasks");
+      setTasks(data.tasks.map(toTask));
+    } catch (error) {
+      const message = error instanceof ApiError ? error.message : "Unable to load tasks";
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-  }, [tasks]);
+    if (user) {
+      fetchTasks();
+    } else {
+      setTasks([]);
+    }
+  }, [user]);
 
-  const createTask = (taskData: NewTaskInput): void => {
-    const newTask: Task = {
-      id: Date.now().toString(),
-      ...taskData,
-      completed: false,
-    };
-    setTasks((prev) => [newTask, ...prev]);
-    toast.success("Task Created Successfully");
+  const createTask = async (taskData: NewTaskInput): Promise<void> => {
+    try {
+      const data = await apiRequest<{ task: RawTask }>("/api/tasks", {
+        method: "POST",
+        body: taskData,
+      });
+      setTasks((prev) => [toTask(data.task), ...prev]);
+      toast.success("Task Created Successfully");
+    } catch (error) {
+      const message = error instanceof ApiError ? error.message : "Unable to create task";
+      toast.error(message);
+      throw error;
+    }
   };
 
-  const updateTask = (id: string, updatedData: NewTaskInput): void => {
-    setTasks((prev) =>
-      prev.map((task) => (task.id === id ? { ...task, ...updatedData } : task)),
-    );
-    toast.success("Task Updated Successfully");
+  const updateTask = async (id: string, updatedData: NewTaskInput): Promise<void> => {
+    try {
+      const data = await apiRequest<{ task: RawTask }>(`/api/tasks/${id}`, {
+        method: "PUT",
+        body: updatedData,
+      });
+      setTasks((prev) => prev.map((task) => (task.id === id ? toTask(data.task) : task)));
+      toast.success("Task Updated Successfully");
+    } catch (error) {
+      const message = error instanceof ApiError ? error.message : "Unable to update task";
+      toast.error(message);
+      throw error;
+    }
   };
 
-  const deleteTask = (id: string): void => {
-    setTasks((prev) => prev.filter((task) => task.id !== id));
-    toast.success("Task Deleted Successfully");
+  const deleteTask = async (id: string): Promise<void> => {
+    try {
+      await apiRequest(`/api/tasks/${id}`, { method: "DELETE" });
+      setTasks((prev) => prev.filter((task) => task.id !== id));
+      toast.success("Task Deleted Successfully");
+    } catch (error) {
+      const message = error instanceof ApiError ? error.message : "Unable to delete task";
+      toast.error(message);
+      throw error;
+    }
   };
 
-  const toggleComplete = (id: string): void => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task,
-      ),
-    );
+  const toggleComplete = async (id: string): Promise<void> => {
+    const target = tasks.find((task) => task.id === id);
+    if (!target) return;
+    try {
+      const data = await apiRequest<{ task: RawTask }>(`/api/tasks/${id}`, {
+        method: "PUT",
+        body: { completed: !target.completed },
+      });
+      setTasks((prev) => prev.map((task) => (task.id === id ? toTask(data.task) : task)));
+    } catch (error) {
+      const message = error instanceof ApiError ? error.message : "Unable to update task";
+      toast.error(message);
+    }
   };
 
   return (
-    <TaskContext.Provider
-      value={{ tasks, createTask, updateTask, deleteTask, toggleComplete }}
-    >
+    <TaskContext.Provider value={{ tasks, loading, createTask, updateTask, deleteTask, toggleComplete }}>
       {children}
     </TaskContext.Provider>
   );

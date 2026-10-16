@@ -1,0 +1,16 @@
+import { useContext, type ReactNode } from "react";
+import { Navigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+
+interface ProtectedRouteProps {
+  children: ReactNode;
+}
+
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+  const { user, loading } = useContext(AuthContext);
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
+  return <>{children}</>;
+};
+
+export default ProtectedRoute;

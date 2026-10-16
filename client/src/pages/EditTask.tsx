@@ -15,7 +15,7 @@ const categoryOptions = [
 const EditTask = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { tasks, updateTask } = useContext(TaskContext);
+  const { tasks, loading, updateTask } = useContext(TaskContext);
   const existingTask = tasks.find((task) => task.id === id);
 
   const [title, setTitle] = useState(existingTask?.title ?? "");
@@ -28,7 +28,7 @@ const EditTask = () => {
   );
   const [error, setError] = useState("");
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!title || !description || !dueDate) {
       setError("All fields are required.");
       return;
@@ -40,8 +40,12 @@ const EditTask = () => {
     }
     if (!id) return;
     setError("");
-    updateTask(id, { title, description, dueDate, category });
-    navigate("/my-tasks");
+    try {
+      await updateTask(id, { title, description, dueDate, category });
+      navigate("/my-tasks");
+    } catch {
+      /* error toast already shown */
+    }
   };
 
   const scrollToTop = () => {
@@ -54,7 +58,7 @@ const EditTask = () => {
         <Navbar />
         <div className="px-4 md:px-10 xl:px-[100px] 2xl:px-[170px] pt-10">
           <p className="font-['Signika_Negative'] text-[18px] md:text-[22px] text-[#737171]">
-            Task not found.
+            {loading ? "Loading..." : "Task not found."}
           </p>
         </div>
       </div>
