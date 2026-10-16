@@ -54,12 +54,12 @@ const Register = () => {
   return (
     <div className="bg-[#F2E9FB] min-h-screen">
       <Navbar />
-      <div className="px-4 md:px-10 xl:px-[100px] 2xl:px-[170px] pt-10 md:pt-16 pb-16 flex justify-center">
+      <div className="px-4 md:px-10 xl:px-[100px] 2xl:px-[170px] pt-6 md:pt-8 pb-8 flex justify-center">
         <div className="w-full max-w-[480px]">
-          <h1 className="font-['Signika_Negative'] font-medium text-[28px] sm:text-[36px] md:text-[42px] text-[#292929] text-center mb-10">
+          <h1 className="font-['Signika_Negative'] font-medium text-[28px] sm:text-[36px] md:text-[42px] text-[#292929] text-center mb-6">
             Create Account
           </h1>
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
             <div className={inputWrap}>
               <label className={label}>First Name</label>
               <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} className={input} />

@@ -1,6 +1,7 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import ConfirmModal from "./ConfirmModal";
 import logo from "../assets/logo.svg";
 import avatar from "../assets/avatar .png";
 import dot from "../assets/dot.png";
@@ -9,6 +10,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useContext(AuthContext);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const isCoverPage = location.pathname === "/";
   const isMyTasksPage = location.pathname === "/my-tasks";
@@ -76,10 +78,7 @@ const Navbar = () => {
             </div>
             <span
               className="cursor-pointer font-medium text-[13px] sm:text-[17px] md:text-[22px] text-[#292929]"
-              onClick={() => {
-                logout();
-                navigate("/login");
-              }}
+              onClick={() => setShowLogoutConfirm(true)}
             >
               Log Out
             </span>
@@ -93,6 +92,18 @@ const Navbar = () => {
           </span>
         )}
       </div>
+      <ConfirmModal
+        isOpen={showLogoutConfirm}
+        title="Log Out"
+        message="Are you sure you want to log out?"
+        confirmLabel="Log Out"
+        onCancel={() => setShowLogoutConfirm(false)}
+        onConfirm={() => {
+          setShowLogoutConfirm(false);
+          logout();
+          navigate("/login");
+        }}
+      />
     </div>
   );
 };
